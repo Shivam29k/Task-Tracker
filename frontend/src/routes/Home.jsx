@@ -29,7 +29,6 @@ function Home() {
             }
         }).then((response) => {
             (response.data.user.team.length === 0) && navigate('/teams');
-            // console.log(response.data.user);
             setUser(response.data.user);
             setLoading(false);
         }).catch((err) => {
@@ -64,14 +63,14 @@ function Taskboard({ user, teams }) {
     const [currentTeam, setCurrentTeam] = useState(teams[0]);
     const [members, setMembers] = useState(null);
 
-    useEffect(() => {
-        console.log("user: ", user);
-        console.log("teams: ", teams);
-    })
+    // useEffect(() => {
+    //     console.log("user: ", user);
+    //     console.log("teams: ", teams);
+    // /})
 
-    useEffect(() => {
-        console.log("Current Team: ", currentTeam);
-    }, [currentTeam]);
+    // useEffect(() => {
+    //     console.log("Current Team: ", currentTeam);
+    // }, [currentTeam]);
 
     useEffect(() => {
         axios.get(`${BACKEND_URL}/api/user/all-team?teamId=${currentTeam._id}`, {
@@ -142,7 +141,7 @@ function FirstRow({ currentTeam, members }) {
     )
 }
 
-function SecondRow({teams, setCurrentTeam}) {
+function SecondRow({ teams, setCurrentTeam }) {
     return (
         <div className='flex gap-4 font-semibold items-center mt-4'>
             <p className='text-lg pr-5'>Team:</p>
@@ -168,17 +167,33 @@ function TaskSection({ currentTeam }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        console.log("Current Team --------------------> ", currentTeam);
+    }, [currentTeam]);
+
+    useEffect(() => {
         axios.get(`${BACKEND_URL}/api/task/all-team`, {
             headers: {
                 Authorization: JSON.parse(localStorage.getItem('user'))
-            },
-            data: {
+            }, params: {
                 teamId: currentTeam._id
             }
         }).then((response) => {
-            console.log(response.data.tasks);
-            setTasks(response.data.tasks);
+
+            const tasksByStatus = {
+                "Pending": [],
+                "In Progress": [],
+                "Completed": [],
+                "Deployed": [],
+                "Deferred": []
+            };
+
+            response.data.tasks.forEach((task) => {
+                tasksByStatus[task.status].push(task);
+            });
+            console.log(tasksByStatus);
+            setTasks(tasksByStatus);
             setLoading(false);
+
         }).catch((err) => {
             console.log("Error: ", err);
         })

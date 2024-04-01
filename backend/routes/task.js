@@ -54,6 +54,7 @@ router.get('/all-user', authMiddleware, async (req, res) => {
 });
 
 // get the list of all the tasks in a team
+// task should be arrange 
 // route = /task/all-team
 router.get('/all-team', authMiddleware, async (req, res) => {
     console.log(req.query);

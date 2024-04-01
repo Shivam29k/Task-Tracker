@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 import { Button, Checkbox, Label, Modal, TextInput } from "flowbite-react";
 import axios from 'axios';
-
+import { BACKEND_URL } from '../config';
 
 function CreateTaskDialog({ team, members }) {
 
