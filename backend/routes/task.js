@@ -9,26 +9,26 @@ const router = express.Router();
 const createTaskSchema = z.object({
     title: z.string().min(1).max(100),
     description: z.string().min(1).max(500),
-    team: z.string().min(1).max(100),
-    assignee: z.string().min(1).max(100),
+    teamId: z.string().min(1).max(100),
     priority: z.string().min(2).max(2),
-    date: z.date(),
+    assigneeId: z.string().min(1).max(100),
 });
 
 router.post('/create', authMiddleware, async (req, res) => {
-    const validInputs = createTaskSchema.parse(req.body);
-    if (!validInputs) {
+    const validInputs = createTaskSchema.safeParse(req.body);
+    console.log(validInputs);
+    if (!validInputs.success) {
         return res.status(400).json({ message: 'Invalid input' });
     }
 
     const task = await Task.create({
         title: req.body.title,
         description: req.body.description,
-        team: req.body.team,
+        teamId: req.body.teamId,
         status: 'Pending',
-        assignee: req.userID,
+        assignee: req.body.assigneeId,
         priority: req.body.priority,
-        date: req.body.date,
+        startDate: new Date(),
     }).catch((e) => {
         console.error(e);
         return res.status(500).json({ message: 'Internal server error' });
@@ -43,10 +43,22 @@ router.post('/create', authMiddleware, async (req, res) => {
 
 
 // get list of all the tasks assigned to an user
-// route = /task/all
+// route = /task/all-user
 
-router.get('/all', authMiddleware, async (req, res) => {
-    const tasks = await Task.find({ assignee: req.userID }).catch((e) => {
+router.get('/all-user', authMiddleware, async (req, res) => {
+    const tasks = await Task.find({ assignee: req.userId }).catch((e) => {
+        console.error(e);
+        return res.status(500).json({ message: 'Internal server error' });
+    });
+    return res.status(200).json({ tasks });
+});
+
+// get the list of all the tasks in a team
+// route = /task/all-team
+router.get('/all-team', authMiddleware, async (req, res) => {
+    const tasks = await Task.find({
+        teamId: req.body.teamId,
+    }).catch((e) => {
         console.error(e);
         return res.status(500).json({ message: 'Internal server error' });
     });
@@ -62,7 +74,7 @@ const updateTaskSchema = z.object({
 });
 
 router.post('/update', authMiddleware, async (req, res) => {
-    const validInputs = updateTaskSchema.parse(req.body);
+    const validInputs = updateTaskSchema.safeParse(req.body);
     if (!validInputs) {
         return res.status(400).json({ message: 'Invalid input' });
     }

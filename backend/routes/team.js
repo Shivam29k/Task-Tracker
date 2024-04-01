@@ -13,7 +13,7 @@ const createTeamSchema = z.object({
 
 router.post('/create', authMiddleware, async (req, res) => {
     console.log(req.body);
-    const validInputs = createTeamSchema.parse(req.body);
+    const validInputs = createTeamSchema.safeParse(req.body);
     if (!validInputs) {
         return res.status(400).json({ message: 'Invalid input' });
     }
@@ -58,7 +58,7 @@ const addMemberSchema = z.object({
 }); 
 
 router.post('/add-member', authMiddleware, async (req, res) => {
-    const validInputs = addMemberSchema.parse({
+    const validInputs = addMemberSchema.safeParse({
         teamId: req.body.teamId,
         memberId: req.body.memberId,
     });

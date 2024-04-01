@@ -125,4 +125,17 @@ router.get("/user", authMiddleware, async (req, res) => {
   }
 });
 
+// find all the users of the same teamId
+// route = /user/all-team
+
+router.get("/all-team", authMiddleware, async (req, res) => {
+  const users = await User.find({ team: req.query.teamId }).catch((e) => {
+    console.error(e);
+    return res.status(500).json({ message: "Internal server error" });
+  });
+
+  res.status(200).json({ users });
+});
+
+
 module.exports = router;

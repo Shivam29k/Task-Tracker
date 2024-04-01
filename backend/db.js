@@ -34,17 +34,18 @@ const Team = mongoose.model(
 const Task = mongoose.model(
   "task",
   new mongoose.Schema({
-    title: String,
-    description: String,
-    startDate: { type: Date, default: Date.now },
-    endDate: Date,
+    title: { type: String, required: true},
+    description: { type: String, required: true},
+    startDate: { type: Date, default: Date.now, required: true},
+    endDate: { type: Date, required: false},
     status: {
       type: String,
       enum: ["Pending", "In Progress", "Completed", "Deployed", "Deferred"],
+      required: true,
     },
-    assignee: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    team: { type: mongoose.Schema.Types.ObjectId, ref: "Team" },
-    priority: { type: String, enum: ["P0", "P1", "P2"] },
+    assignee: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true},
+    teamId: { type: mongoose.Schema.Types.ObjectId, ref: "Team", required: true},
+    priority: { type: String, enum: ["P0", "P1", "P2"], required: true},
   })
 );
 
