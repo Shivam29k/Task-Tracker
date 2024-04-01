@@ -4,6 +4,7 @@ import axios from 'axios'
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/Button';
 import Loading from '../components/Loading';
+import { BACKEND_URL } from '../config';
 
 function Signin() {
 
@@ -15,8 +16,7 @@ function Signin() {
 
   const signIn = async () => {
     setLoad(true);
-    // await axios.post('http://localhost:3000/api/v1/user/signin', {
-    await axios.post('http://localhost:3000/api/user/signin', {
+    await axios.post(`${BACKEND_URL}/api/user/signin`, {
       username: email,
       password: password
     })
@@ -51,7 +51,6 @@ function Signin() {
             <input type="text" onChange={e => setEmail(e.target.value)} className='border-2 rounded-md w-full p-2 text-xl' placeholder='leafvillage@example.com' />
             <div className='text-xl font-semibold mt-2'>Password</div>
             <input type="password" onChange={e => setPassword(e.target.value)} className='border-2 rounded-md w-full p-2 text-xl mb-6' placeholder='' />
-            {/* <button onClick={signIn} className='border-2 rounded-md w-full p-2 text-xl bg-black text-white mt-2'>Sign In</button> */}
             <Button label='Sign In' onClick={signIn} />
           </div>
           <div className='font-semibold mb-2'>Dont have an account? <a href="/signup" className='text-blue-500 underline'>Sign Up</a></div>

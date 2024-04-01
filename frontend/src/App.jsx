@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { BrowserRouter, Route, Routes} from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { BrowserRouter, Route, Routes, useNavigate} from 'react-router-dom'
 import Signup from './routes/Signup'
 import Signin from './routes/Signin'
 import Home from './routes/Home'
@@ -13,6 +13,7 @@ function App() {
     <>
       <BrowserRouter>
         <Routes>
+          <Route path='/' element={<Home/>} />
           <Route path='/signup' element={<Signup/>} />
           <Route path='/signin' element={<Signin/>} />
           <Route path='/home' element={<Home/>} />

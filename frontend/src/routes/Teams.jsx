@@ -19,7 +19,7 @@ function Teams() {
                 Teams 
             </div>
             <div className='w-full md:h-full my-5 flex justify-center items-center'>
-                <div className='bg-white/80 backdrop-blur-sm w-fit p-8 rounded-xl  '>
+                <div className='bg-white/80 backdrop-blur-sm w-3/5 shadow-2xl p-8 rounded-xl  '>
                     <div className='font-bold text-xl'>
                         <div>
                             <div>Create Or Join Teams</div>

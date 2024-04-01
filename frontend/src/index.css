@@ -2,17 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
-
 * {
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
 }
 
 /* Gradient */
 .gradient {
-    background: linear-gradient(90deg, #F4DBF9 0%, #c6cbfc 100%);
-    height: 100vh;
-    /* display: flex; */
-    justify-content: center;
-    align-items: center;
+  background: linear-gradient(90deg, #f4dbf9 0%, #c6cbfc 100%);
+  height: 100vh;
+  /* display: flex; */
+  justify-content: center;
+  align-items: center;
 }
+

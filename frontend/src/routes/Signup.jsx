@@ -4,6 +4,7 @@ import axios from 'axios'
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/Button';
 import Loading from '../components/Loading';
+import { BACKEND_URL } from '../config';
 
 function Signup() {
 
@@ -17,8 +18,7 @@ function Signup() {
 
     const signUp = async () => {
         setLoad(true);
-        // await axios.post('http://localhost:3000/api/v1/user/signup', {
-        await axios.post('http://localhost:3000/api/user/signup', {
+        await axios.post(`${BACKEND_URL}/api/user/signup`, {
             firstname: firstname.charAt(0).toUpperCase() + firstname.slice(1),
             lastname: lastname.charAt(0).toUpperCase() + lastname.slice(1),
             username: email,

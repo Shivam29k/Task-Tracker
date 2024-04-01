@@ -1,10 +1,14 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
-import Loading from '../components/Loading';
+import Loading, { LoadingDiv } from '../components/Loading';
 import { Datepicker, Dropdown } from 'flowbite-react';
 import ProgressCard from '../components/ProgressCard';
 import CreateTaskDialog from '../components/CreateTaskDialog';
+import { Button } from '@material-tailwind/react';
+
+import { RiAccountCircleFill } from "react-icons/ri";
+import { BACKEND_URL } from '../config';
 
 function Home() {
     const [user, setUser] = useState(null);
@@ -13,10 +17,13 @@ function Home() {
 
     const navigate = useNavigate();
     const userToken = JSON.parse(localStorage.getItem('user'));
+    if (!userToken) {
+        navigate('/signin');
+    }
 
     useEffect(() => {
         // getting user details
-        axios.get('http://localhost:3000/api/user/user', {
+        axios.get(`${BACKEND_URL}/api/user/user`, {
             headers: {
                 Authorization: userToken
             }
@@ -32,7 +39,7 @@ function Home() {
 
         //  gettting all teams
 
-        axios.get(`http://localhost:3000/api/team/all-team`, {
+        axios.get(`${BACKEND_URL}/api/team/all-team`, {
             headers: {
                 Authorization: JSON.parse(localStorage.getItem('user'))
             }
@@ -55,8 +62,7 @@ function Home() {
 function Taskboard({ user, teams }) {
 
     const [currentTeam, setCurrentTeam] = useState(teams[0]);
-    const [tasks, setTasks] = useState(null);
-
+    const [members, setMembers] = useState(null);
 
     useEffect(() => {
         console.log("user: ", user);
@@ -67,52 +73,27 @@ function Taskboard({ user, teams }) {
         console.log("Current Team: ", currentTeam);
     }, [currentTeam]);
 
-    function p0() {
-        console.log("P0");
-    }
-    function p1() {
-        console.log("P1");
-    }
-    function p2() {
-        console.log("P2");
-    }
+    useEffect(() => {
+        axios.get(`${BACKEND_URL}/api/user/all-team?teamId=${currentTeam._id}`, {
+            headers: {
+                Authorization: JSON.parse(localStorage.getItem('user'))
+            }
+        }).then((response) => {
+            console.log(response.data.users);
+            setMembers(response.data.users);
+        }).catch((err) => {
+            console.log("Error: ", err);
+        })
+    }, [currentTeam])
 
     return (
         <div className='gradient bg-gradient-to-r from-'>
             <Navbar user={user} />
             <div className='h-5/6  p-12 pt-0 '>
                 <div className='h-full w-full border-4 border-white rounded-xl p-6'>
-                    <div className='flex justify-between '>
-                        <div className='flex gap-4 font-semibold items-center'>
-                            <p className='text-lg'>Filter By:</p>
-                            <input type="text" placeholder='Assignee Name' className='border-none px-2 w-32 rounded p-1' />
-                            <span className='bg-white py-1 px-4 rounded'>
-                                <Dropdown label="Priority" inline>
-                                    <Dropdown.Item>P0</Dropdown.Item>
-                                    <Dropdown.Item>P1</Dropdown.Item>
-                                    <Dropdown.Item>P2</Dropdown.Item>
-                                </Dropdown>
-                            </span>
-
-                            <Datepicker></Datepicker>
-                            to
-                            <Datepicker></Datepicker>
-                        </div>
-                        <button className='text-white bg-blue-700/60 px-5 rounded'>Add New Task</button>
-                        <CreateTaskDialog team={currentTeam}/>
-                    </div>
-                    <div className='flex gap-4 font-semibold items-center mt-4'>
-                        <p className='text-lg pr-2'>Team:</p>
-                        <span className='bg-white py-1 px-4 rounded'>
-                            <Dropdown label={currentTeam.name} inline>
-                                {teams && teams.map((team, index) => {
-                                    return <Dropdown.Item key={index}>{team.name}</Dropdown.Item>
-                                })}
-                            </Dropdown>
-                        </span>
-
-                    </div>
-                    <ProgressCard status={"status"} />
+                    <FirstRow currentTeam={currentTeam} members={members} />
+                    <SecondRow teams={teams} />
+                    {currentTeam && <TaskSection currentTeam={currentTeam} />}
                 </div>
             </div>
         </div>
@@ -120,14 +101,96 @@ function Taskboard({ user, teams }) {
 }
 
 function Navbar({ user }) {
+    function logout() {
+        localStorage.removeItem('user');
+        window.location.href = '/signin';
+    }
     return (
         <div className='flex justify-between items-center  h-1/6 px-14'>
-            <div className='font-bold text-xl'>Task Board</div>
+            <div className='font-bold text-3xl'>Task Board</div>
             <div className='flex items-center gap-4'>
-                <div className='font-semibold'>
+                <div className='font-semibold text-2xl'>
                     {user.firstname} {user.lastname}
                 </div>
-                <div className='bg-black text-white py-1 px-2 rounded-md'>Logout</div>
+                <RiAccountCircleFill className='h-14 w-16' />
+                <Button onClick={logout} className='hover:bg-black bg-black/70 text-white  rounded-md'>Logout</Button>
+            </div>
+        </div>
+    )
+}
+
+function FirstRow({ currentTeam, members }) {
+    return (
+        <div className='flex justify-between '>
+            <div className='flex gap-4 font-semibold items-center'>
+                <p className='text-lg'>Filter By:</p>
+                <input type="text" placeholder='Assignee Name' className='border-none px-2 w-32 rounded p-2' />
+
+                <select name="priority" id="priority" className='border-none rounded-lg'>
+                    <option value="P0">P0</option>
+                    <option value="P1">P1</option>
+                    <option value="P2">P2</option>
+                </select>
+
+
+                <Datepicker></Datepicker>
+                to
+                <Datepicker></Datepicker>
+            </div>
+            {(members && currentTeam) && <CreateTaskDialog team={currentTeam} members={members} />}
+        </div>
+    )
+}
+
+function SecondRow({teams, setCurrentTeam}) {
+    return (
+        <div className='flex gap-4 font-semibold items-center mt-4'>
+            <p className='text-lg pr-5'>Team:</p>
+            <select
+                onChange={(e) => {
+                    const selectedTeam = teams.find(team => team._id === e.target.value);
+                    setCurrentTeam(selectedTeam);
+                }}
+                name="team"
+                id="team"
+                className='border-none rounded-lg shadow-none'>
+                {teams && teams.map((team, index) => {
+                    return <option value={team._id} key={index}>{team.name}</option>
+                })}
+            </select>
+        </div>
+    )
+}
+
+
+function TaskSection({ currentTeam }) {
+    const [tasks, setTasks] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        axios.get(`${BACKEND_URL}/api/task/all-team`, {
+            headers: {
+                Authorization: JSON.parse(localStorage.getItem('user'))
+            },
+            data: {
+                teamId: currentTeam._id
+            }
+        }).then((response) => {
+            console.log(response.data.tasks);
+            setTasks(response.data.tasks);
+            setLoading(false);
+        }).catch((err) => {
+            console.log("Error: ", err);
+        })
+    }, [currentTeam])
+
+    return (
+        <div className='h-5/6 mt-4'>
+            {loading && <LoadingDiv label={"Loading..."} />}
+            <div className='grid grid-cols-4 gap-4 mt-4'>
+                {tasks && tasks.map((task, index) => {
+                    return <ProgressCard key={index} task={task} />
+                })}
             </div>
         </div>
     )
