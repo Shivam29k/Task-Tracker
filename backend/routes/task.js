@@ -56,8 +56,9 @@ router.get('/all-user', authMiddleware, async (req, res) => {
 // get the list of all the tasks in a team
 // route = /task/all-team
 router.get('/all-team', authMiddleware, async (req, res) => {
+    console.log(req.query);
     const tasks = await Task.find({
-        teamId: req.body.teamId,
+        teamId: req.query.teamId,
     }).catch((e) => {
         console.error(e);
         return res.status(500).json({ message: 'Internal server error' });
